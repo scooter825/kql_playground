@@ -4,7 +4,7 @@ Description: "Interactive KQL training environment for threat hunters"
 
 Practice Kusto Query Language (KQL) for threat hunting and security analysis without needing Azure Sentinel, Microsoft Defender, or any cloud access.
 
-**🌐 [Live Demo](https://scooter825.github.io/kql-sandbox/)** ← Replace with your actual GitHub Pages URL
+🌐 [Live Demo](https://scooter825.github.io/kql-sandbox/)
 
 ## 📋 Overview
 
