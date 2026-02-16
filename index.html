@@ -164,6 +164,16 @@
         td {
             padding: 8px 10px;
             border-bottom: 1px solid #3e3e42;
+            max-width: 600px;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+        
+        td:nth-child(4) {
+            min-width: 400px;
+            max-width: 800px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
         }
         
         tr:hover {
@@ -235,7 +245,7 @@
     <div class="header">
         <div>
             <h1>🔍 KQL Sandbox - Practice Environment</h1>
-            <div class="easter-egg-hint">🏆 Easter Egg Challenge: Find the hidden message for a prize!</div>
+            <div class="easter-egg-hint">🏆 Easter Egg Challenge: Find the hidden message! (Just for fun & practice)</div>
         </div>
         <div class="controls">
             <button class="btn" onclick="runQuery()">▶ Run Query</button>
@@ -270,7 +280,7 @@ Example: DeviceProcessEvents | where FileName contains &quot;powershell&quot;">D
                 <span class="record-count" id="recordCount">0 records</span>
             </div>
             <div class="results" id="results">
-                <div class="info-panel"><strong>💡 Sample Data Available:</strong><br>• DeviceProcessEvents (500+ records)<br>• DeviceNetworkEvents (300 records)<br>• DeviceFileEvents (200 records)<br><br>🎯 <strong>Hidden Content:</strong> Multiple suspicious processes and 1 easter egg!<br>🔎 <strong>Hints:</strong> Look for unusual account names, specific ProcessIds, or base64-encoded messages.<br><br>Click "Run Query" or press Ctrl+Enter to execute your query.</div>
+                <div class="info-panel"><strong>💡 Sample Data Available:</strong><br>• DeviceProcessEvents (500+ records)<br>• DeviceNetworkEvents (300 records)<br>• DeviceFileEvents (200 records)<br><br>🎯 <strong>Hidden Content:</strong> Multiple suspicious processes and 1 easter egg (just for fun)!<br>🔎 <strong>Hints:</strong> Look for unusual account names, specific ProcessIds, or base64-encoded messages.<br><br>Click "Run Query" or press Ctrl+Enter to execute your query.</div>
             </div>
         </div>
     </div>
@@ -374,13 +384,13 @@ Example: DeviceProcessEvents | where FileName contains &quot;powershell&quot;">D
             _malicious: true
         });
         
-        // 🏆 THE EASTER EGG - Base64 encoded secret message!
-        // Decode this to win: Q29uZ3JhdHVsYXRpb25zISBZb3UgZm91bmQgdGhlIGVhc3RlciBlZ2chIFlvdXIgS1FMIHNraWxscyBhcmUgc3Ryb25nLiBUaGUgcGFzc3dvcmQgaXM6IEh1bnRlcjJfRGVmZW5kZXJfUHJv
+        // 🏆 THE EASTER EGG - Base64 encoded secret message (just for fun)!
+        // Decode this for bragging rights: Q29uZ3JhdHVsYXRpb25zISBZb3UgZm91bmQgdGhlIGVhc3RlciBlZ2chIFlvdXIgS1FMIHNraWxscyBhcmUgc3Ryb25nLiBObyBhY3R1YWwgcHJpemUsIGp1c3QgYnJhZ2dpbmcgcmlnaHRzIQ==
         deviceProcessEvents.push({
             Timestamp: generateTimestamp(7),
             DeviceName: 'WORKSTATION-DEV-03',
             FileName: 'powershell.exe',
-            ProcessCommandLine: 'powershell.exe -enc Q29uZ3JhdHVsYXRpb25zISBZb3UgZm91bmQgdGhlIGVhc3RlciBlZ2chIFlvdXIgS1FMIHNraWxscyBhcmUgc3Ryb25nLiBUaGUgcGFzc3dvcmQgaXM6IEh1bnRlcjJfRGVmZW5kZXJfUHJv',
+            ProcessCommandLine: 'powershell.exe -enc Q29uZ3JhdHVsYXRpb25zISBZb3UgZm91bmQgdGhlIGVhc3RlciBlZ2chIFlvdXIgS1FMIHNraWxscyBhcmUgc3Ryb25nLiBObyBhY3R1YWwgcHJpemUsIGp1c3QgYnJhZ2dpbmcgcmlnaHRzIQ==',
             AccountName: '🎯EASTEREGG',
             ProcessId: 31337,
             _easter_egg: true
@@ -576,7 +586,7 @@ Example: DeviceProcessEvents | where FileName contains &quot;powershell&quot;">D
             // Check if Easter Egg was found
             const foundEasterEgg = data.some(row => row._easter_egg);
             if (foundEasterEgg) {
-                html += '<div class="info-panel" style="background: #1a472a; border-left-color: #4ec9b0;"><strong>🎉 EASTER EGG FOUND!</strong><br>You discovered the hidden record! Now decode the base64 in the ProcessCommandLine to claim your prize.</div>';
+                html += '<div class="info-panel" style="background: #1a472a; border-left-color: #4ec9b0;"><strong>🎉 EASTER EGG FOUND!</strong><br>You discovered the hidden record! Now decode the base64 in the ProcessCommandLine for bragging rights. 🏆</div>';
             }
             
             resultsDiv.innerHTML = html;
@@ -584,7 +594,7 @@ Example: DeviceProcessEvents | where FileName contains &quot;powershell&quot;">D
         
         function clearQuery() {
             document.getElementById('queryEditor').value = '';
-            document.getElementById('results').innerHTML = '<div class="info-panel"><strong>💡 Sample Data Available:</strong><br>• DeviceProcessEvents (500+ records)<br>• DeviceNetworkEvents (300 records)<br>• DeviceFileEvents (200 records)<br><br>🎯 <strong>Hidden Content:</strong> Multiple suspicious processes and 1 easter egg!<br>🔎 <strong>Hints:</strong> Look for unusual account names, specific ProcessIds, or base64-encoded messages.<br><br>Click "Run Query" or press Ctrl+Enter to execute your query.</div>';
+            document.getElementById('results').innerHTML = '<div class="info-panel"><strong>💡 Sample Data Available:</strong><br>• DeviceProcessEvents (500+ records)<br>• DeviceNetworkEvents (300 records)<br>• DeviceFileEvents (200 records)<br><br>🎯 <strong>Hidden Content:</strong> Multiple suspicious processes and 1 easter egg (just for fun)!<br>🔎 <strong>Hints:</strong> Look for unusual account names, specific ProcessIds, or base64-encoded messages.<br><br>Click "Run Query" or press Ctrl+Enter to execute your query.</div>';
             document.getElementById('recordCount').textContent = '0 records';
         }
         
